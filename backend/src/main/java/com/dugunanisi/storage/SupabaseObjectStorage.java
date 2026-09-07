@@ -164,8 +164,31 @@ public class SupabaseObjectStorage implements ObjectStorage {
 	}
 
 	private void applyServiceRole(org.springframework.http.HttpHeaders headers) {
-		headers.setBearerAuth(supabase.getServiceRoleKey());
-		headers.set("apikey", supabase.getServiceRoleKey());
+		String key = supabase.getServiceRoleKey();
+		headers.set("apikey", key);
+		if (isLegacyJwtApiKey(key)) {
+			headers.setBearerAuth(key);
+		}
+	}
+
+	/**
+	 * Legacy anon/service_role keys are compact JWTs and belong on Authorization.
+	 * New {@code sb_secret_}/{@code sb_publishable_} keys are not JWTs; sending them
+	 * as Bearer makes the gateway return 403 Invalid Compact JWS.
+	 */
+	static boolean isLegacyJwtApiKey(String key) {
+		if (key == null || key.isBlank()) {
+			return false;
+		}
+		if (key.startsWith("sb_secret_") || key.startsWith("sb_publishable_")) {
+			return false;
+		}
+		int firstDot = key.indexOf('.');
+		if (firstDot <= 0) {
+			return false;
+		}
+		int secondDot = key.indexOf('.', firstDot + 1);
+		return secondDot > firstDot + 1 && key.indexOf('.', secondDot + 1) < 0;
 	}
 
 	private void assertConfigured() {
