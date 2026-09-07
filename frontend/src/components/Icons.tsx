@@ -85,3 +85,22 @@ export function IconArrowLeft({ size = 16, className }: IconProps) {
     </Svg>
   )
 }
+
+export function IconVolume({ size = 18, className }: IconProps) {
+  return (
+    <Svg size={size} className={className}>
+      <path {...stroke} d="M5 9.2h3.1L12.4 6v12L8.1 14.8H5A1.2 1.2 0 0 1 3.8 13.6V10.4A1.2 1.2 0 0 1 5 9.2z" />
+      <path {...stroke} d="M15.2 9.2a3.4 3.4 0 0 1 0 5.6" />
+      <path {...stroke} d="M17.4 7a6.2 6.2 0 0 1 0 10" />
+    </Svg>
+  )
+}
+
+export function IconVolumeMute({ size = 18, className }: IconProps) {
+  return (
+    <Svg size={size} className={className}>
+      <path {...stroke} d="M5 9.2h3.1L12.4 6v12L8.1 14.8H5A1.2 1.2 0 0 1 3.8 13.6V10.4A1.2 1.2 0 0 1 5 9.2z" />
+      <path {...stroke} d="m16 9.2 4 4.4M20 9.2l-4 4.4" />
+    </Svg>
+  )
+}

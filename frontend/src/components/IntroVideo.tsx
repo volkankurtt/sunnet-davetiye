@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { eventConfig } from '../config/eventConfig'
+import { IconVolume, IconVolumeMute } from './Icons'
 
 const STORAGE_KEY = 'sunnet-intro-done'
 
@@ -31,8 +32,19 @@ export function IntroVideo({ onFinished }: Props) {
   const onFinishedRef = useRef(onFinished)
   const [leaving, setLeaving] = useState(false)
   const [soundUi, setSoundUi] = useState<SoundUi>('hidden')
+  const [muted, setMuted] = useState(false)
+  const [volume, setVolume] = useState(1)
+  const lastAudibleRef = useRef(1)
   const finished = useRef(false)
   onFinishedRef.current = onFinished
+
+  function applyAudio(nextMuted: boolean, nextVolume: number) {
+    const video = videoRef.current
+    if (!video) return
+    video.volume = nextVolume
+    video.muted = nextMuted || nextVolume === 0
+    video.defaultMuted = video.muted
+  }
 
   useEffect(() => {
     const video = videoRef.current
@@ -72,7 +84,10 @@ export function IntroVideo({ onFinished }: Props) {
       try {
         main.muted = false
         main.defaultMuted = false
+        main.volume = lastAudibleRef.current
         await main.play()
+        setMuted(false)
+        setVolume(lastAudibleRef.current)
         setSoundUi('hidden')
         syncBlur()
       } catch {
@@ -80,6 +95,7 @@ export function IntroVideo({ onFinished }: Props) {
           main.muted = true
           main.defaultMuted = true
           await main.play()
+          setMuted(true)
           setSoundUi('unmute')
           syncBlur()
         } catch {
@@ -100,10 +116,13 @@ export function IntroVideo({ onFinished }: Props) {
     const blur = blurRef.current
     if (!video) return
     try {
+      const restore = lastAudibleRef.current > 0 ? lastAudibleRef.current : 1
+      video.volume = restore
       video.muted = false
       video.defaultMuted = false
-      video.volume = 1
       await video.play()
+      setVolume(restore)
+      setMuted(false)
       setSoundUi('hidden')
       if (blur) {
         blur.muted = true
@@ -112,6 +131,37 @@ export function IntroVideo({ onFinished }: Props) {
       }
     } catch {
       setSoundUi('start')
+    }
+  }
+
+  function toggleMute() {
+    const video = videoRef.current
+    if (!video) return
+    if (!video.muted && video.volume > 0) {
+      lastAudibleRef.current = video.volume
+      setMuted(true)
+      applyAudio(true, volume)
+      return
+    }
+    const restore = lastAudibleRef.current > 0 ? lastAudibleRef.current : 0.7
+    setVolume(restore)
+    setMuted(false)
+    applyAudio(false, restore)
+    void video.play().then(() => setSoundUi('hidden')).catch(() => setSoundUi('start'))
+  }
+
+  function onVolumeInput(value: number) {
+    const next = Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0
+    if (next > 0) lastAudibleRef.current = next
+    const nextMuted = next === 0
+    setVolume(next)
+    setMuted(nextMuted)
+    applyAudio(nextMuted, next)
+    if (!nextMuted) {
+      const video = videoRef.current
+      if (video) {
+        void video.play().then(() => setSoundUi('hidden')).catch(() => undefined)
+      }
     }
   }
 
@@ -146,6 +196,27 @@ export function IntroVideo({ onFinished }: Props) {
       <button className="btn btn--skip" type="button" onClick={skip}>
         Geç
       </button>
+      <div className="intro-video__audio">
+        <button
+          className="intro-video__mute"
+          type="button"
+          onClick={toggleMute}
+          aria-label={muted || volume === 0 ? 'Sesi Aç' : 'Sesi Kapat'}
+          aria-pressed={muted || volume === 0}
+        >
+          {muted || volume === 0 ? <IconVolumeMute size={18} /> : <IconVolume size={18} />}
+        </button>
+        <input
+          className="intro-video__volume"
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={muted ? 0 : volume}
+          aria-label="Ses seviyesi"
+          onChange={(event) => onVolumeInput(Number(event.target.value))}
+        />
+      </div>
       {soundUi !== 'hidden' ? (
         <button className="btn btn--warm intro-video__sound" type="button" onClick={() => void startWithSound()}>
           {soundUi === 'unmute' ? 'Sesi Aç' : 'Sesli Başlat'}
