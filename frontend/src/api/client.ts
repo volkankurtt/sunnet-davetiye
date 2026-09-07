@@ -1,7 +1,7 @@
 import type { Memory, Photo } from '../types'
 import { markBackendReady } from './backendReadyState'
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
 
 export const HEALTH_WAIT_MS = 90_000
 export const HEALTH_RETRY_MS = 4_000
