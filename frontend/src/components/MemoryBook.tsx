@@ -26,7 +26,7 @@ export function MemoryBook({ onWrite }: Props) {
         Anı Bırak
       </button>
       {loadError ? <p className="form-error">{loadError}</p> : null}
-      {memoriesLoading && memories.length === 0 ? (
+      {memoriesLoading && memories.length === 0 && !loadError ? (
         <p className="memory-band__empty">Notlar yükleniyor…</p>
       ) : memories.length === 0 ? (
         <p className="memory-band__empty">{wedding.memoriesEmpty}</p>

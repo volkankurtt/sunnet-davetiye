@@ -63,15 +63,28 @@ a {
   overflow-x: clip;
 }
 
+html.intro-open,
+html.intro-open body,
+html.intro-open #root {
+  background: #6ea8d4;
+}
+
+html.intro-open,
+html.intro-open body {
+  overflow: hidden;
+}
+
 .intro-video {
   position: fixed;
   inset: 0;
   z-index: 80;
   width: 100%;
+  width: 100vw;
+  height: 100svh;
   height: 100dvh;
-  min-height: 100vh;
+  min-height: 100svh;
   overflow: hidden;
-  background: #0a2463;
+  background: #6ea8d4;
   opacity: 1;
   transition: opacity 0.48s ease;
 }
@@ -88,12 +101,15 @@ a {
 
 .intro-video__blur {
   position: absolute;
-  inset: -12%;
-  width: 124%;
-  height: 124%;
+  inset: -20%;
+  z-index: 0;
+  width: 140%;
+  height: 140%;
   object-fit: cover;
   object-position: center;
-  filter: blur(28px) saturate(1.15);
+  filter: blur(36px) saturate(1.2);
+  transform: scale(1.12);
+  opacity: 1;
   pointer-events: none;
 }
 
@@ -342,8 +358,8 @@ a {
 
 .btn--skip {
   position: absolute;
-  top: max(0.85rem, env(safe-area-inset-top));
-  right: max(0.85rem, env(safe-area-inset-right));
+  top: max(0.85rem, calc(env(safe-area-inset-top, 0px) + 0.5rem));
+  right: max(0.85rem, env(safe-area-inset-right, 0px));
   z-index: 3;
   width: auto;
   min-width: 4.6rem;
@@ -763,7 +779,7 @@ a {
 .intro-video__sound {
   position: absolute;
   left: 50%;
-  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  bottom: max(1.1rem, calc(env(safe-area-inset-bottom, 0px) + 0.45rem));
   z-index: 3;
   width: auto;
   min-width: 11rem;
@@ -773,8 +789,8 @@ a {
 
 .intro-video__audio {
   position: absolute;
-  left: max(0.85rem, env(safe-area-inset-left));
-  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  left: max(0.85rem, env(safe-area-inset-left, 0px));
+  bottom: max(1.1rem, calc(env(safe-area-inset-bottom, 0px) + 0.45rem));
   z-index: 3;
   display: flex;
   align-items: center;
@@ -790,7 +806,7 @@ a {
 }
 
 .intro-video:has(.intro-video__sound) .intro-video__audio {
-  bottom: max(4.75rem, calc(env(safe-area-inset-bottom) + 3.6rem));
+  bottom: max(4.75rem, calc(env(safe-area-inset-bottom, 0px) + 3.6rem));
 }
 
 .intro-video__mute {
