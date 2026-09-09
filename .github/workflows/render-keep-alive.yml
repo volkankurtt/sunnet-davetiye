@@ -1,0 +1,19 @@
+name: Render keep-alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping-health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GET /api/health
+        run: |
+          curl -fsS \
+            --retry 5 \
+            --retry-delay 15 \
+            --retry-all-errors \
+            --max-time 30 \
+            "https://sunnet-davetiye.onrender.com/api/health"
